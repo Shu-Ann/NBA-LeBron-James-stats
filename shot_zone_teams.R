@@ -1,6 +1,6 @@
 
 library(tidyverse)
-shot<-read_csv("shooting shootingclean.csv")
+shot<-read_csv("shooting_shootingclean.csv")
 
 # covert x and y coordinates into numeric
 shot$LOC_X <- as.numeric(as.character(shot$LOC_X))
@@ -21,7 +21,7 @@ shotp<-shot%>%group_by(SHOT_ZONE_BASIC,TEAM_NAME)%>%
 
 shotp[shotp=='n/a']<- NA
 
-shotp=na.omit(shotp)
+shotp<-na.omit(shotp)
 
 
 shotp$SHOT_ACCURACY_LAB <- paste(as.character(round(100 * shotp$accuracy, 1)), "%", sep="")
@@ -44,21 +44,7 @@ store_csv=paste("shotp.csv")
 
 write_csv(shotp, path=store_csv)
 
-# plot shot accuracy per zone
-library(grid)
-library(jpeg)
-library(RCurl)
-courtImg.URL <- "https://thedatagame.files.wordpress.com/2016/03/nba_court.jpg"
-court <- rasterGrob(readJPEG(getURLContent(courtImg.URL)),
-                    width=unit(1,"npc"), height=unit(1,"npc"))
 
-ggplot(shotS, aes(x=MLOC_X, y=MLOC_Y)) + 
-  annotation_custom("nba_court(1).jpeg", -250, 250, -52, 418) +
-  geom_point(aes(color = SHOT_ZONE_BASIC, size = SHOT_ACCURACY, alpha = 0.8), size = 8) +
-  geom_text(aes(color = SHOT_ZONE_BASIC, label = SHOT_ACCURACY_LAB), vjust = -1.2, size = 8) 
-xlim(250, -250) +
-  ylim(-52, 418) +
-  coord_fixed() 
 
 
 
