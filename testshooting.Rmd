@@ -1,0 +1,456 @@
+---
+title: "test"
+output: html_document
+date: '2022-06-03'
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(leaflet)
+library(shiny)
+
+###clean data
+shooting<-read_csv("shootingclean.csv")
+library(lubridate)
+shooting$GAME_DATE<-ymd(shooting$GAME_DATE)
+
+lbj_birth<-ymd("1984-12-30")
+shooting$AGE<-time_length(difftime(shooting$GAME_DATE, lbj_birth),"years")
+shooting$AGE<-substr(as.character(shooting$AGE),1,2)
+shooting<-na.omit(shooting)
+shooting <- subset(shooting, select = -c(1,2,3,4,5,6,8,9,10,22,23,24))
+
+shooting
+
+```
+
+
+```{r}
+shooting <- shooting[which(!shooting$SHOT_ZONE_BASIC=='Backcourt'), ]
+
+
+shot_t<-shooting%>%group_by(SHOT_ZONE_BASIC,TEAM_NAME)%>%
+  summarise(LOC_X=mean(LOC_X), LOC_Y=mean(LOC_Y), 
+            SHOT_ACCURACY=sum(SHOT_MADE_FLAG)/sum(SHOT_ATTEMPTED_FLAG))
+
+shot_t$SHOT_ACCURACY_LAB <- paste(as.character(round(100 * shot_t$SHOT_ACCURACY, 1)), "%", sep="")
+
+store_csv=paste("shot_team.csv")
+write_csv(shot_t, path=store_csv)
+
+```
+
+
+
+```{r}
+
+library(ggpubr)
+library(jpeg)
+shot_team<-read_csv("shot_team.csv")
+shot_team<-as.data.frame(shot_team)
+img <- readJPEG("nba_court.jpeg")
+
+shot_team
+
+
+p<-ggplot(shot_team, aes(x=LOC_X, y=LOC_Y)) +
+  background_image(img)+
+  geom_point(aes(color=SHOT_ZONE_BASIC, size=SHOT_ACCURACY,alpha = 0.8),size = 6) +
+  geom_text(aes(color=SHOT_ZONE_BASIC,label = SHOT_ACCURACY_LAB), vjust = -1, size = 6)+
+    xlim(250, -250) +
+    ylim(-52, 418) +
+    coord_fixed()
+
+p
+```
+
+```{r}
+
+shooting<-read_csv("dvpshooting.csv")
+
+shooting$SHOT_TYPE<-
+  case_when(
+    shooting$SHOT_TYPE %in% c("Alley Oop") ~"Alley Oop",
+    shooting$SHOT_TYPE %in% c("Dunk Shot"
+                                ) ~"Dunk Shot",
+    shooting$SHOT_TYPE %in% c("Layup Shot") ~"Layup Shot",
+    shooting$SHOT_TYPE %in% c("Hook Shot","Jump Shot")~"Jump Shot" ,
+    TRUE ~"Others")
+
+
+
+```
+
+
+
+
+
+
+
+
+```{r}
+shot_team<-read_csv("shot_team.csv")
+shot_age<-read_csv("shot_age.csv")
+shot_team$type<-c("Team")
+shot_team$group<-shot_team$TEAM_NAME
+shot_age$type<-c("Age")
+shot_age$group<-shot_age$AGE
+shot_team <- subset(shot_team, select = -c(2))
+shot_age <- subset(shot_age, select = -c(2))
+```
+
+```{r}
+shot_accuracy <- rbind(shot_team, shot_age)
+```
+
+```{r}
+
+store_csv=paste("shot_accuracy.csv")
+write_csv(shot_accuracy, path=store_csv)
+```
+
+```{r}
+test<-read_csv("shot_accuracy.csv")
+```
+
+```{r}
+shooting_team<-read_csv("dvpshooting.csv")
+shooting_age<-read_csv("dvpshooting.csv")
+```
+
+```{r}
+shooting_team$group<-shooting_team$TEAM_NAME
+shooting_team$type<-c("Team")
+shooting_age$group<-shooting_team$AGE
+shooting_age$type<-c("Age")
+```
+
+
+```{r}
+shooting_team <- subset(shooting_team, select = -c(1,13))
+shooting_age <- subset(shooting_age, select = -c(1,13))
+```
+
+
+```{r}
+shot_combine<- rbind(shooting_team, shooting_age)
+store_csv=paste("dvpshooting.csv")
+write_csv(shot_combine, path=store_csv)
+```
+
+
+```{r}
+win<-read_csv("dvpallgame.csv")
+names(win)[4]<-"win"
+win$win<-substr(win$win,1,1)
+```
+
+
+```{r}
+win$win_flag<-
+  case_when(
+    win$win %in% c("L") ~0,
+    win$win %in% c("W") ~1)
+    
+
+win$total<-c(1)
+```
+
+
+```{r}
+win<-subset(win,select=-c(4,5,6,8,9))
+```
+
+```{r}
+store_csv=paste("win.csv")
+write_csv(win, path=store_csv)
+```
+
+
+```{r}
+win_age<-read_csv("win.csv")
+win_team<-read_csv("win.csv")
+
+win_age$Opp<-
+  case_when(
+    win_age$Opp %in% c('NJN',"BRK") ~"BKN",
+    win_age$Opp %in% c("NOH","NOK") ~"NOP",
+    win_age$Opp %in% c("SEA") ~"OKC",
+    win_age$Opp %in% c("PHO") ~"PHX",
+    win_age$Opp %in% c("CHO") ~"CHA",
+    TRUE ~win_age$Opp)
+
+win_team$Opp<-
+  case_when(
+    win_team$Opp %in% c('NJN',"BRK") ~"BKN",
+    win_team$Opp %in% c("NOH","NOK") ~"NOP",
+    win_team$Opp %in% c("SEA") ~"OKC",
+    win_team$Opp %in% c("PHO") ~"PHX",
+    win_team$Opp %in% c("CHO") ~"CHA",
+    TRUE ~win_team$Opp)
+
+winrate_t<-win_team%>%
+  group_by(Tm,Opp)%>%
+  summarise(avg_FG=mean(`FG%`), avg_3P=mean(`3P%`), avg_trb=mean(TRB), avg_blk=mean(BLK), avg_pt=mean(PTS),
+            win_rate=sum(win_flag)/sum(total))
+
+winrate_a<-win_team%>%
+  group_by(Age,Opp)%>%
+  summarise(avg_FG=mean(`FG%`), avg_3P=mean(`3P%`), avg_trb=mean(TRB), avg_blk=mean(BLK), avg_pt=mean(PTS),
+            win_rate=sum(win_flag)/sum(total))
+
+winrate_t$group<-winrate_t$Tm
+winrate_t$type<-c("Team")
+winrate_a$group<-winrate_a$Age
+winrate_a$type<-c("Age")
+
+winrate_t <- subset(winrate_t, select = -c(1))
+winrate_a <- subset(winrate_a, select = -c(1))
+
+winrate <- rbind(winrate_t, winrate_a)
+```
+
+
+```{r}
+store_csv=paste("winrate.csv")
+write_csv(winrate, path=store_csv)
+```
+
+
+
+```{r}
+winrate<-read_csv("winrate.csv")
+nba_location<-read_csv("nba_location.csv")
+winrate<-merge(winrate,nba_location)
+```
+
+```{r}
+store_csv=paste("winrate.csv")
+write_csv(winrate, path=store_csv)
+
+```
+
+```{r}
+winrate<-read_csv("winrate.csv")
+```
+
+```{r}
+nba_location<-read_csv("nba_location.csv")
+nba_location
+
+```
+
+```{r}
+
+winrate<-read_csv("winrate.csv")
+
+nbaIcons <- iconList(
+  ATL = makeIcon("ATL.png","ATL.png", 35, 35),
+  BKN = makeIcon("BKN.png","BKN.png",  35, 35),
+  BOS = makeIcon("BOS.png","BOS.png", 35, 35),
+  CHA = makeIcon("CHA.png", "CHA.png", 35, 35),
+  CHI = makeIcon("CHI.png","CHI.png", 35, 35),
+  CLE = makeIcon("CLE.png", "CLE.png", 35, 35),
+  DAL = makeIcon("DAL.png","DAL.png", 35, 35),
+  DEN = makeIcon("DEN.png","DEN.png",  35, 35),
+  DET = makeIcon("DET.png", "DET.png",35, 35),
+  GSW = makeIcon("GSW.png","GSW.png",  35, 35),
+  HOU = makeIcon("HOU.png","HOU.png", 35, 35),
+  IND = makeIcon("IND.png","IND.png",  35, 35),
+  LAC = makeIcon("LAC.png","LAC.png",  35, 35),
+  LAL = makeIcon("LAL.png","LAL.png", 35, 35),
+  MEM = makeIcon("MEM.png","MEM.png",  35, 35),
+  MIA = makeIcon("MIA.png","MIA.png", 35, 35),
+  MIL = makeIcon("MIL.png","MIL.png",  35, 35),
+  MIN = makeIcon("MIN.png","MIN.png", 35, 35),
+  NOP = makeIcon("NOP.png","NOP.png",  35, 35),
+  NYK = makeIcon("NYK.png","NYK.png", 35, 35),
+  OKC = makeIcon("OKC.png","OKC.png",  35, 35),
+  ORL = makeIcon("ORL.png","ORL.png", 35, 35),
+  PHI = makeIcon("PHI.png","PHI.png",  35, 35),
+  PHX = makeIcon("PHX.png","PHX.png", 35, 35),
+  POR = makeIcon("POR.png","POR.png",  35, 35),
+  SAC = makeIcon("SAC.png","SAC.png", 35, 35),
+  SAS = makeIcon("SAS.png","SAS.png",  35, 35),
+  TOR = makeIcon("TOR.png", "TOR.png", 35, 35),
+  UTA = makeIcon("UTA.png","UTA.png", 35, 35),
+  WAS = makeIcon("WAS.png","WAS.png",  35, 35)
+)
+
+winrate$Opp<-factor(winrate$Opp,
+       c("ATL","BKN" ,"BOS","CHA","CHI","CLE" ,"DAL","DEN","DET" ,"GSW","HOU","IND","LAC","LAL",
+         "MEM","MIA","MIL","MIN","NOP","NYK","OKC","ORL","PHI","PHX","POR","SAC","SAS","TOR","UTA","WAS"))
+
+leaflet(winrate) %>% 
+  addProviderTiles(providers$Stamen.TonerLite) %>%
+  addMarkers(lng = ~Longitude, lat = ~Latitude, icon = ~nbaIcons[Opp])
+
+```
+
+
+```{r}
+winrate<-read_csv("winrate.csv")
+winrate$avg_FG <- paste(as.character(round(100 * winrate$avg_FG, 1)), "%", sep="")
+winrate$avg_3P <- paste(as.character(round(100 * winrate$avg_3P, 1)), "%", sep="")
+winrate$avg_blk <- as.character(round(winrate$avg_blk, 1))
+winrate$avg_trb<-as.character(round(winrate$avg_trb, 1))
+winrate$avg_pt <- as.character(round(winrate$avg_pt, 1))
+winrate$win_rate_lab <- paste(as.character(round(100 * winrate$win_rate, 1)), "%", sep="")
+winrate
+```
+
+```{r}
+store_csv=paste("winrate.csv")
+write_csv(winrate, path=store_csv)
+
+```
+
+
+```{r}
+winrate<-read_csv("winrate.csv")
+allgame<-read_csv("dvpallgame.csv")
+shot_accuracy<-read_csv("shot_accuracy.csv")
+shooting<-read_csv("dvpshooting.csv")
+
+```
+
+```{r}
+winrate$group<-
+  case_when(winrate$group %in% c("03_10CLE")~"2003-2010 CLE",
+            winrate$group %in% c("14_18CLE")~ "2014-2018 CLE",
+            winrate$group %in% c("MIA")~ "2010-2014 MIA",
+            winrate$group %in% c("LAL") ~"2018-Now LAL",
+            TRUE ~winrate$group)
+
+allgame$Tm<-
+  case_when(allgame$Tm %in% c("03_10CLE")~"2003-2010 CLE",
+            allgame$Tm %in% c("14_18CLE")~ "2014-2018 CLE",
+            allgame$Tm %in% c("MIA")~ "2010-2014 MIA",
+            allgame$Tm %in% c("LAL") ~"2018-Now LAL",
+            TRUE ~allgame$Tm)
+
+shot_accuracy$group<-
+  case_when(shot_accuracy$group %in% c("03_10CLE")~"2003-2010 CLE",
+            shot_accuracy$group %in% c("14_18CLE")~ "2014-2018 CLE",
+            shot_accuracy$group %in% c("MIA")~ "2010-2014 MIA",
+            shot_accuracy$group %in% c("LAL") ~"2018-Now LAL",
+            TRUE ~shot_accuracy$group)
+
+shooting$group<-
+  case_when(shooting$group %in% c("03_10CLE")~"2003-2010 CLE",
+            shooting$group %in% c("14_18CLE")~ "2014-2018 CLE",
+            shooting$group %in% c("MIA")~ "2010-2014 MIA",
+            shooting$group %in% c("LAL") ~"2018-Now LAL",
+            TRUE ~shooting$group)
+```
+
+```{r}
+
+shot_accuracy$group<-factor(shot_accuracy$group, 
+                                   levels=c("2003-2010 CLE","2010-2014 MIA","2014-2018 CLE",
+                                            "2018-Now LAL","18","19","20","21","22","23","24","25","26","27"
+                                            ,"28","29","30","31","32","33","34","35","36","37"))
+
+shooting$group<-factor(shooting$group, 
+                                   levels=c("2003-2010 CLE","2010-2014 MIA","2014-2018 CLE",
+                                            "2018-Now LAL","18","19","20","21","22","23","24","25","26","27"
+                                            ,"28","29","30","31","32","33","34","35","36","37"))
+winrate$group<-factor(winrate$group, 
+                                   levels=c("2003-2010 CLE","2010-2014 MIA","2014-2018 CLE",
+                                            "2018-Now LAL","18","19","20","21","22","23","24","25","26","27"
+                                            ,"28","29","30","31","32","33","34","35","36","37"))
+
+
+```
+
+```{r}
+store_csv=paste("winrate.csv")
+write_csv(winrate, path=store_csv)
+
+# store_csv2=paste("dvpallgame.csv")
+# write_csv(allgame, path=store_csv2)
+
+store_csv3=paste("shot_accuracy.csv")
+write_csv(shot_accuracy, path=store_csv3)
+
+store_csv4=paste("dvpshooting.csv")
+write_csv(shooting, path=store_csv4)
+```
+
+
+```{r}
+shot_accuracy$SHOT_ZONE_BASIC<-
+  case_when(
+    shot_accuracy$SHOT_ZONE_BASIC %in% c("Left Corner 3") ~"Right Corner 3",
+    shot_accuracy$SHOT_ZONE_BASIC %in% c("Right Corner 3") ~"Left Corner 3",
+    TRUE ~shot_accuracy$SHOT_ZONE_BASIC)
+
+store_csv3=paste("shot_accuracy.csv")
+write_csv(shot_accuracy, path=store_csv3)
+
+```
+
+```{r}
+winrate$avg_pt_LAB<-winrate$avg_pt
+winrate$avg_trb_LAB<-winrate$avg_trb
+winrate$avg_blk_LAB<-winrate$avg_blk
+
+```
+
+```{r}
+winrate$avg_pt<-as.numeric(winrate$avg_pt)
+winrate$avg_trb<-as.numeric(winrate$avg_trb)
+winrate$avg_blk<-as.numeric(winrate$avg_blk)
+```
+
+```{r}
+names(winrate)[4] <- "Rebounds"
+names(winrate)[5] <- "Blocks"
+names(winrate)[6] <- "Points"
+
+
+```
+
+```{r}
+library(tidyverse)
+winrate<-read_csv("winrate.csv")
+winrate$id<-case_when(winrate$Opp %in% c("ATL")~"1",
+            winrate$Opp %in% c("CHA")~ "4",
+            winrate$Opp %in% c("BKN")~ "2",
+            winrate$Opp %in% c("BOS") ~"3",
+            winrate$Opp %in% c("CHI")~ "5",
+            winrate$Opp %in% c("CLE")~ "6",
+            winrate$Opp %in% c("DAL") ~"7",
+            winrate$Opp %in% c("DEN")~ "8",
+            winrate$Opp %in% c("DET")~ "9",
+            winrate$Opp %in% c("GSW") ~"10",
+            winrate$Opp %in% c("HOU")~ "11",
+            winrate$Opp %in% c("IND")~ "12",
+            winrate$Opp %in% c("LAC") ~"13",
+            winrate$Opp %in% c("LAL")~ "14",
+            winrate$Opp %in% c("MEM")~ "15",
+            winrate$Opp %in% c("MIA") ~"16",
+            winrate$Opp %in% c("MIL")~ "17",
+            winrate$Opp %in% c("MIN")~ "18",
+            winrate$Opp %in% c("NOP") ~"19",
+            winrate$Opp %in% c("NYK")~ "20",
+            winrate$Opp %in% c("OKC") ~"21",
+            winrate$Opp %in% c("ORL")~ "22",
+            winrate$Opp %in% c("PHI")~ "23",
+            winrate$Opp %in% c("PHX") ~"24",
+            winrate$Opp %in% c("POR")~ "25",
+            winrate$Opp %in% c("SAC")~ "26",
+            winrate$Opp %in% c("SAS") ~"27",
+            winrate$Opp %in% c("TOR")~ "28",
+            winrate$Opp %in% c("UTA")~ "29",
+            winrate$Opp %in% c("WAS") ~"30"
+            )
+
+```
+
+```{r}
+winrate<-read_csv("winrate.csv")
+
+```
+
