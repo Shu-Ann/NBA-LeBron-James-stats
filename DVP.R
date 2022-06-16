@@ -141,7 +141,11 @@ server<-function(input, output, session) {
   shot_accuracy<-as.data.frame(shot_accuracy)
   
   
+<<<<<<< HEAD
   img <- readJPEG("nba_court.jpeg")
+=======
+  img <- jpeg::readJPEG("nba_court.jpeg")
+>>>>>>> b48820e22bfe6f537563e44139b5faf27be71df2
   rb<-highlight_key(p1_rb,~Age)
   point<-highlight_key(p1_point,~Age)
   
