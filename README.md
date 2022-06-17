@@ -1,5 +1,5 @@
-# NBA-LeBron-James-stats-in-progress-
-This project focuses on LBJ's career stats, including how he played on different teams and how the first five years of his career compare to today.
+# NBA-LeBron-James-stats-R-Shiny
+This project focuses on LBJ's career stats, including overall stats, shooting stats and the data when he against others, also the comparsion about how he played on different teams and ages.
 
 Data Source:
 A.	LeBron James’s total stats in regular session and playoff games from 2003 to 2021 
@@ -71,13 +71,12 @@ The data of shooting, separating by first five years and recent five year in two
 
 More Exploartions check out in Project file!
 
-## Project that In progress
 
-Data exploration is completed; however, the part that still in progress is data visualisation.
-I am going to use `R shiny` to conduct a webpage form with some interactive function.
-The visualisation will be hybrid style which combined with reader-driven and author-driven, including the data and information 
-I would like to show to all audience, at the same time, audience could also choose the specific information to obtain.
-For example, the shooting stats in 2020.
+## Data Visualization
 
-The project will be complete in June 2022.
+## Next Step
 
+This project done by R Shiny. Shiny is one of the tools that allow users to build a webpage visualzation with interactive functions; however, customized design is not easy to implement by Shiny. As a result, the next step I am tring to do is to implement the visualization part by `D3` which is one of the packages that in javascript. The D3 project is expected to be completed in August.
+
+
+### Now, try on `DVP.R` and have fun!
