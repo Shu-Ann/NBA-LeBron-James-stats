@@ -54,6 +54,7 @@ Check the dataset by using `Tableau`
 By `R`:
 
 The graph tells the stats in first five year and recent five year. 
+
 <img width="555" alt="截圖 2022-05-13 下午4 06 22" src="https://user-images.githubusercontent.com/105199493/168221391-1d46d3d1-abbe-469e-b21b-07890a1808d0.png">
 
 Displays the situation in different teams.
@@ -75,14 +76,16 @@ More Exploartions check out in Project file!
 ## Data Visualization
 
 The visualization part is done by `R Shiny`. The data I used is from 2003 to 2022, which is from his first career year till now.
+The completed R script can be found in `DVP.R` file. The needed data are `dvpallgame.csv`, `shot_accuracy.csv`, `dvpshooting.csv` and `winrate.csv`.
 
 
-On the first page- Overall Stats
+#### On the first page- Overall Stats
 This page shows the overall trend from the first career year to 2022. There are four interactive plots. 2/3 point shooting stats and rebound/block stats.
 
 <img width="1426" alt="截圖 2022-06-17 下午6 44 26" src="https://user-images.githubusercontent.com/105199493/174262248-827f295a-aba2-43a5-9693-4bde92853e0c.png">
 
 
+plot-
 
 <img width="1407" alt="截圖 2022-06-17 下午6 51 59" src="https://user-images.githubusercontent.com/105199493/174263672-3d42e5cc-03ff-443f-bdcb-e0f7332cdcb6.png">
 
@@ -95,10 +98,49 @@ On the top right is rebound/block trend. Again, when player influenced by aging,
 
 When mouse hovering, the stats of corresponding age will be highlight.
 
+#### Second page- Shooting.
 
+The second page focus on the shooting stats. 
+
+From the top to bottom, the plots would like to display- shooting accuracy at different zones, shooting frequency, total number of shooting attempt and the shooting type proportion.
+
+
+<img width="1420" alt="截圖 2022-06-17 下午7 04 40" src="https://user-images.githubusercontent.com/105199493/174266074-b02ab138-fa1f-4f8c-8df8-d77b388c1f45.png">
+<img width="1393" alt="截圖 2022-06-17 下午7 04 56" src="https://user-images.githubusercontent.com/105199493/174266136-84c5620e-5017-48d6-9bb3-fff674d0e685.png">
+
+The users first can choose whether they want to compare the stats by different teams or age.
+
+While team- there are four selections
+
+<img width="242" alt="截圖 2022-06-17 下午7 07 31" src="https://user-images.githubusercontent.com/105199493/174266537-c38d088b-1647-4fb6-9918-d788f3bdacf4.png">
+
+While age- the drop down menu change the team options to age from 18 to 37 years old.
+
+<img width="238" alt="截圖 2022-06-17 下午7 08 10" src="https://user-images.githubusercontent.com/105199493/174266644-f18f1788-cd62-4524-84c4-b78eff8f37bc.png">
+
+For example, users can choose 18 vs 28 to compare and check out the data at the sepecfic age.
+
+<img width="1401" alt="截圖 2022-06-17 下午7 09 29" src="https://user-images.githubusercontent.com/105199493/174266880-688367c5-2469-4c74-9cf1-de365862bd96.png">
+
+#### Third page- Win Rate
+
+The final page is abot the win rate when against other teams.
+There are two plot on this page, one is map and the other is a bar chart.
+
+<img width="1411" alt="截圖 2022-06-17 下午7 10 54" src="https://user-images.githubusercontent.com/105199493/174267166-b979fdd1-0332-4502-aa76-b1d4ea849809.png">
+
+Again, users can choose whether they would like to know more about in different teams or ages-
+<img width="244" alt="截圖 2022-06-17 下午7 12 17" src="https://user-images.githubusercontent.com/105199493/174267410-4f3597aa-27b4-41dc-a16d-696072523900.png">
+
+When click on the logo on the map, it shows the detail data including win rate, points, field goals, 3 points, rebounds and blocks on average of all period (team or age).
+<img width="1177" alt="截圖 2022-06-17 下午7 13 42" src="https://user-images.githubusercontent.com/105199493/174267677-ef89e4ba-c681-472f-af9c-41739c20d5cc.png">
+
+Below is a bar chart, when mouse hover, the selected bar would be highlight.
+<img width="1371" alt="截圖 2022-06-17 下午7 15 54" src="https://user-images.githubusercontent.com/105199493/174268132-3931c616-b647-4054-b252-399fa3d2504d.png">
 
 
 ## Next Step
+
 
 This project done by R Shiny. Shiny is one of the tools that allow users to build a webpage visualzation with interactive functions; however, customized design is not easy to implement by Shiny. As a result, the next step I am tring to do is to implement the visualization part by `D3` which is one of the packages that in javascript. The D3 project is expected to be completed in August.
 
