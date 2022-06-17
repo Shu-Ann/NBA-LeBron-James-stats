@@ -74,6 +74,30 @@ More Exploartions check out in Project file!
 
 ## Data Visualization
 
+The visualization part is done by `R Shiny`. The data I used is from 2003 to 2022, which is from his first career year till now.
+
+
+On the first page- Overall Stats
+This page shows the overall trend from the first career year to 2022. There are four interactive plots. 2/3 point shooting stats and rebound/block stats.
+
+<img width="1426" alt="截圖 2022-06-17 下午6 44 26" src="https://user-images.githubusercontent.com/105199493/174262248-827f295a-aba2-43a5-9693-4bde92853e0c.png">
+
+
+
+<img width="1407" alt="截圖 2022-06-17 下午6 51 59" src="https://user-images.githubusercontent.com/105199493/174263672-3d42e5cc-03ff-443f-bdcb-e0f7332cdcb6.png">
+
+
+On the top left is shooting attempt trend, we focus on 2 point and 3 point shot. As we all know, when people impacted by aging, they usually change their playing style from the shot closed to basket to 3 point shot in order to avoid body collision and protect themselves. 
+
+On the top right is rebound/block trend. Again, when player influenced by aging, their physical status may not be as good as when they were young, and the relative rebounds and blocks will decline, because the body can no longer withstand too many bounces and collisions.
+
+<img width="697" alt="截圖 2022-06-17 下午6 54 56" src="https://user-images.githubusercontent.com/105199493/174264253-c6049dab-e0bc-41ac-b6d3-e8cb8a159226.png">
+
+When mouse hovering, the stats of corresponding age will be highlight.
+
+
+
+
 ## Next Step
 
 This project done by R Shiny. Shiny is one of the tools that allow users to build a webpage visualzation with interactive functions; however, customized design is not easy to implement by Shiny. As a result, the next step I am tring to do is to implement the visualization part by `D3` which is one of the packages that in javascript. The D3 project is expected to be completed in August.
