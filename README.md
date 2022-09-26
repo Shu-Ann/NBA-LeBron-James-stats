@@ -142,7 +142,7 @@ Below is a bar chart, when mouse hover, the selected bar would be highlight.
 ## Next Step
 
 
-This project done by R Shiny. Shiny is one of the tools that allow users to build a webpage visualzation with interactive functions; however, customized design is not easy to implement by Shiny. As a result, the next step I am tring to do is to implement the visualization part by `D3` which is one of the packages that in javascript. The D3 project is expected to be completed in August.
+This project done by R Shiny. Shiny is one of the tools that allow users to build a webpage visualzation with interactive functions; however, customized design is not easy to implement by Shiny. As a result, the next step I am tring to do is to implement the visualization part by `D3` which is one of the packages that in javascript. 
 
 
 ### Now, try on `DVP.R` and have fun!
